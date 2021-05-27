@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: echo-server
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 8080
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: echo-server
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - echo-server
+  http:
+  - route:
+    - destination:
+        host: echo-server
+        port:
+          number: 8000

@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: echo-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-server
+  labels:
+    app: echo-server
+    service: echo-server
+spec:
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: echo-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-server
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: echo-server
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: echo-server
+        version: v1
+    spec:
+      serviceAccountName: echo-server
+      containers:
+      - image: mendhak/http-https-echo:18
+        imagePullPolicy: IfNotPresent
+        name: echo-server
+        env:
+          - name: HTTP_PORT
+            value: "8000"
+        ports:
+        - containerPort: 8000

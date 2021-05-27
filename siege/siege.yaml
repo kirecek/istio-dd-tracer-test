@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: siege
+  name: siege
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: siege
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: siege
+    spec:
+      containers:
+      - image: kirecek/siege
+        name: siege
+        command: ["/bin/sh"]
+        args:
+          - "-c"
+          - |
+            while true; do
+              siege \
+                -c 200 \
+                -t 50s \
+                -H "Host: echo-server.example.com" \
+                -H "x-datadog-trace-id: 0" \
+                -H "x-datadog-parent-id: 0" \
+                -H "x-datadog-sampling-priority: 1" \
+                http://istio-ingressgateway.istio-system
+              sleep 1;
+            done

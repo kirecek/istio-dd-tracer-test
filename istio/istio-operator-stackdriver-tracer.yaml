@@ -1,0 +1,65 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  namespace: istio-system
+  name: istio-controlplane
+spec:
+  profile: default
+  tag: 1.10.0
+  components:
+    ingressGateways:
+    - enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 40Mi
+        service:
+          ports:
+          - name: status-port
+            port: 15021
+            targetPort: 15021
+          - name: http2
+            port: 80
+            targetPort: 8080
+          - name: https
+            port: 443
+            targetPort: 8443
+          type: ClusterIP
+      name: istio-ingressgateway
+    egressGateways:
+    - enabled: false
+      name: istio-egressgateway
+    istiodRemote:
+      enabled: false
+    pilot:
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 200m
+            memory: 510Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+  meshConfig:
+    accessLogFile: ""
+    enableTracing: true
+    defaultConfig:
+      proxyMetadata:
+        ISTIO_META_DNS_CAPTURE: "true"
+      tracing:
+        sampling: 100
+    outboundTrafficPolicy:
+      mode: ALLOW_ANY
+    # h2UpgradePolicy: UPGRADE
+  values:
+    global:
+      proxy:
+        tracer: stackdriver
+    telemetry:
+      enabled: true
+      v2:
+        enabled: true
+        prometheus:
+          enabled: true

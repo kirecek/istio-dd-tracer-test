@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: statsd-logger
+  name: statsd-logger
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: statsd-logger
+  template:
+    metadata:
+      labels:
+        app: statsd-logger
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+      - image: kirecek/statsd-logger
+        name: statsd-logger
+        ports:
+        - containerPort: 8126
+          name: trace-port
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: statsd-logger
+  name: statsd-logger
+spec:
+  ports:
+  - port: 8126
+    protocol: TCP
+    targetPort: 8126
+  selector:
+    app: statsd-logger

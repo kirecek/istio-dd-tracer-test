@@ -1,0 +1,7 @@
+namespace: trace-demo
+
+resources:
+  - namespace.yaml
+  - statsd-logger/statsd-logger.yaml
+  - echo-server/echo-server.yaml
+  - echo-server/echo-server-gateway.yaml
